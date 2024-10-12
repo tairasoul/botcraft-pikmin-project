@@ -8,8 +8,6 @@ libbotcraft.so and libprotocolCraft.so need to be put in libraries/ (create if d
 
 Reads library files from a "commands" folder in the working directory, look through src/commands to see how it should be structured. Multiple commands can exist per library, however they all need to be added at the same time.
 
-Very specifically made for protocol version 766, manual modification will be required for other protocol versions.
-
 Requires a modification to Botcraft's source that makes Botcraft::World::SetBlockImpl a virtual function (allowing for override).
 
 Also needs a modification that adds Botcraft::LoginType and makes Client->Connect take LoginType instead of a bool for third argument.
