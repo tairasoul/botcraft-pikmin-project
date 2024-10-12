@@ -12,7 +12,7 @@
 #include <IdSplit.hpp>
 using namespace Botcraft;
 
-class PikminClient : public Botcraft::TemplatedBehaviourClient<PikminClient> {
+class PikminClient : public std::enable_shared_from_this<PikminClient>, public Botcraft::TemplatedBehaviourClient<PikminClient> {
     public:
         PikminClient(GlobalData data, int id);
         ~PikminClient();
@@ -22,6 +22,9 @@ class PikminClient : public Botcraft::TemplatedBehaviourClient<PikminClient> {
         bool executeCommand(const ProtocolCraft::ClientboundPlayerChatPacket& msg);
         std::shared_ptr<IdSplittedWorld> GetWorld();
         std::vector<std::shared_ptr<Command>> commands;
+        std::shared_ptr<PikminClient> getSharedPtr() {
+            return shared_from_this();
+        }
         int id = 0;
     private:
         GlobalData global_data;

@@ -7,10 +7,11 @@
 #include <functional>
 #include <dlfcn.h>
 #include <GlobalData.hpp>
+#include <IdSplit.hpp>
 #include <protocolCraft/AllClientboundMessages.hpp>
 class PikminClient;
 
-using CommandFunction = std::function<void(PikminClient*, ProtocolCraft::UUID, GlobalData, std::vector<std::string>)>;
+using CommandFunction = std::function<void(std::shared_ptr<PikminClient>, std::shared_ptr<IdSplittedWorld>, ProtocolCraft::UUID, GlobalData, std::vector<std::string>)>;
 
 class Command {
     public:

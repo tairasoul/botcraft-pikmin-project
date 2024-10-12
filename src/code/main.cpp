@@ -95,7 +95,7 @@ int main(int argc, char* argv[])
         GlobalData global = GlobalData();
         loader.loadCommandsFromDirectory(resolvePathRelativeToCurrentDirectory("commands"));
         for (int i = 0; i < args.bot_count; i++) {
-            std::shared_ptr<Botcraft::World> shared_world = shared_worlds[i / 8];
+            std::shared_ptr<IdSplittedWorld> shared_world = shared_worlds[i / 8];
             clients[i] = std::make_shared<PikminClient>(global, i);
             clients[i]->SetAutoRespawn(true);
             clients[i]->SetSharedWorld(shared_world);

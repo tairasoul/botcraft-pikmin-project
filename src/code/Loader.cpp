@@ -12,7 +12,7 @@ void CommandLoader::loadCommandsFromDirectory(const std::string& directory) {
 }
 
 void CommandLoader::loadCommandsFromLibrary(const std::string& libraryPath) {
-    void* handle = dlopen(libraryPath.c_str(), RTLD_LAZY);
+    void* handle = dlopen(libraryPath.c_str(), RTLD_NOW | RTLD_GLOBAL);
     if (!handle) {
         LOG_ERROR("Error loading library: " << dlerror());
         return;

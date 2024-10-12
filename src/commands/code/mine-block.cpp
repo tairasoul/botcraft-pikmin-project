@@ -13,22 +13,23 @@
 #include <functional>
 #include <numeric>
 #include <IdSplit.hpp>
+#include <BlockMap.hpp>
 
 class GoMineBlock: public Command {
     public:
         GoMineBlock() {
             name = "mine";
-            func = std::bind(&GoMineBlock::mineBlock, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4);
+            func = std::bind(&GoMineBlock::mineBlock, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5);
         }
     private:
         Vector3<double> returnPos;
-        Botcraft::Status EquipBestTool(PikminClient* client, std::string block_id) {
+        Botcraft::Status EquipBestTool(std::shared_ptr<PikminClient> client, std::string block_id) {
             std::shared_ptr<InventoryManager> inventory = client->GetInventoryManager();
             const std::map<short, ProtocolCraft::Slot> inventory_slots = inventory->GetPlayerInventory()->GetSlots();
             return Botcraft::Status::Success;
         }
 
-        void mineBlock(PikminClient* client, ProtocolCraft::UUID origin, GlobalData global_data, std::vector<std::string> arguments) {
+        void mineBlock(std::shared_ptr<PikminClient> client, std::shared_ptr<IdSplittedWorld> world, ProtocolCraft::UUID origin, GlobalData global_data, std::vector<std::string> arguments) {
             returnPos = client->GetLocalPlayer()->GetPosition();
             if (arguments.size() == 0) {
                 if (client->id == 0) {
@@ -41,7 +42,7 @@ class GoMineBlock: public Command {
             if (arguments.size() == 2) {
                 amt = std::atoi(arguments[1].c_str());
             }
-            std::vector<Botcraft::Position> Blocks = filterClosestToFurthest(FindBlocksWithId(client, block_id, amt), returnPos);
+            std::vector<Botcraft::Position> Blocks = filterClosestToFurthest(FindBlocksWithId(world, block_id, amt), returnPos);
             if (amt > Blocks.size())
                 amt = Blocks.size();
             std::vector<std::shared_ptr<Botcraft::BehaviourTree<PikminClient>>> trees;
@@ -93,37 +94,9 @@ class GoMineBlock: public Command {
             return sortedPoints;
         }
 
-        std::vector<Botcraft::Position> FindBlocksWithId(PikminClient* client, std::string id, int max) {
-            std::shared_ptr<IdSplittedWorld> world = client->GetWorld();
-            std::vector<Botcraft::Position> Positions;
-            Botcraft::Position current_position;
-            int count = 0;
-            auto all_chunks = world->GetChunks();
-            for (const auto& [coords, chunk] : *all_chunks) {
-                for (int y = chunk.GetMinY(); y < chunk.GetMinY() + chunk.GetHeight(); ++y) {
-                    current_position.y = y;
-                    for (int z = 0; z < CHUNK_WIDTH; ++z) {
-                        current_position.z = z;
-                        for (int x = 0; x < CHUNK_WIDTH; ++z) {
-                            current_position.x = x;
-                            const Botcraft::Blockstate* blockstate = chunk.GetBlock(current_position);
-                            if (blockstate == nullptr)
-                                continue;
-                            if (blockstate->GetName() == id) {
-                                const Position world_coordinates(
-                                    coords.first * CHUNK_WIDTH + x,
-                                    y,
-                                    coords.second * CHUNK_WIDTH + z
-                                );
-                                Positions.push_back(world_coordinates);
-                                if (++count == max) {
-                                    return Positions;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+        std::vector<Botcraft::Position> FindBlocksWithId(std::shared_ptr<IdSplittedWorld> world, std::string id, int max) {
+            std::vector<Botcraft::Position> Positions = world->blockMap.GetPositions(id);
+            
             return Positions;
         }
 };

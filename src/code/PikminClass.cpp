@@ -51,10 +51,14 @@ bool PikminClient::executeCommand(const ProtocolCraft::ClientboundPlayerChatPack
         for (int i = 0; i < commands.size(); i++) {
             if (commands[i]->name == arguments[0])
             {
-                commands[i]->func(this, msg.GetSender(), global_data, std::vector<std::string>(arguments.begin() + 1, arguments.end()));
+                commands[i]->func(getSharedPtr(), GetWorld(), msg.GetSender(), global_data, std::vector<std::string>(arguments.begin() + 1, arguments.end()));
                 return true;
             }
         }
     }
     return false;
+}
+
+std::shared_ptr<IdSplittedWorld> PikminClient::GetWorld() {
+    return std::dynamic_pointer_cast<IdSplittedWorld>(this->world);
 }
